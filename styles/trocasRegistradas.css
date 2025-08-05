@@ -1,0 +1,380 @@
+/* ========================================
+   TROCAS REGISTRADAS - CSS ESPECÍFICO
+======================================== */
+
+/* Filtros */
+.filtros-container {
+    background: rgba(32, 32, 34, 0.8);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.form-select-custom {
+    background-color: rgba(45, 45, 48, 0.8);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    color: #edf0f1;
+    border-radius: 10px;
+    padding: 12px 16px;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+.form-select-custom:focus {
+    background-color: rgba(45, 45, 48, 0.9);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+    color: #edf0f1;
+}
+
+.form-select-custom option {
+    background-color: #2d2d30;
+    color: #edf0f1;
+    padding: 10px;
+}
+
+/* Container principal das trocas */
+.trocas-container {
+    background: rgba(32, 32, 34, 0.8);
+    border-radius: 15px;
+    padding: 25px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.trocas-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid rgba(59, 130, 246, 0.3);
+}
+
+.trocas-header h3 {
+    color: #edf0f1;
+    font-weight: 600;
+    margin: 0;
+}
+
+.total-registros .badge {
+    font-size: 14px;
+    padding: 8px 12px;
+}
+
+/* Loading */
+.loading-container {
+    text-align: center;
+    padding: 50px 20px;
+    color: #edf0f1;
+}
+
+.loading-container .spinner-border {
+    width: 3rem;
+    height: 3rem;
+}
+
+/* Lista vazia */
+.lista-vazia {
+    text-align: center;
+    padding: 60px 20px;
+    color: #9ca3af;
+}
+
+.lista-vazia i {
+    opacity: 0.5;
+    margin-bottom: 20px;
+}
+
+/* Cards das trocas */
+.trocas-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.troca-card {
+    background: linear-gradient(135deg, rgba(45, 45, 48, 0.9), rgba(39, 39, 42, 0.9));
+    border-radius: 12px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+    overflow: hidden;
+}
+
+.troca-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.troca-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 20px 25px 15px;
+    border-bottom: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.cliente-info h5 {
+    color: #edf0f1;
+    font-weight: 600;
+    margin-bottom: 8px;
+    font-size: 18px;
+}
+
+.veiculo-info {
+    color: #9ca3af;
+    margin: 0;
+    font-size: 14px;
+}
+
+.veiculo-info strong {
+    color: #d1d5db;
+}
+
+.placa {
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    color: white;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    font-size: 12px;
+    letter-spacing: 1px;
+}
+
+.acoes {
+    display: flex;
+    gap: 8px;
+}
+
+.acoes .btn {
+    width: 35px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.3s ease;
+}
+
+.acoes .btn:hover {
+    transform: scale(1.1);
+}
+
+.troca-card-body {
+    padding: 20px 25px;
+}
+
+.data-info {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.data-info i {
+    font-size: 18px;
+    margin-top: 2px;
+}
+
+.data-info div strong {
+    color: #d1d5db;
+    font-size: 14px;
+    display: block;
+    margin-bottom: 4px;
+}
+
+.data-info div p {
+    color: #edf0f1;
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Status badges */
+.status-container {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.status-badge {
+    font-size: 13px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.status-em-dia {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: white;
+}
+
+.status-atrasado {
+    background: linear-gradient(135deg, #ef4444, #dc2626);
+    color: white;
+}
+
+.status-proximo {
+    background: linear-gradient(135deg, #f59e0b, #d97706);
+    color: white;
+}
+
+/* Modais */
+.modal-custom {
+    background: linear-gradient(135deg, rgba(45, 45, 48, 0.95), rgba(39, 39, 42, 0.95));
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    border-radius: 15px;
+    backdrop-filter: blur(10px);
+}
+
+.modal-custom .modal-header {
+    border-bottom: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(32, 32, 34, 0.8);
+}
+
+.modal-custom .modal-header h5 {
+    color: #edf0f1;
+    font-weight: 600;
+}
+
+.modal-custom .modal-body {
+    color: #edf0f1;
+}
+
+.modal-custom .modal-footer {
+    border-top: 1px solid rgba(59, 130, 246, 0.3);
+    background: rgba(32, 32, 34, 0.8);
+}
+
+.cliente-info-modal {
+    background: rgba(32, 32, 34, 0.6);
+    border-radius: 10px;
+    padding: 15px;
+    border: 1px solid rgba(59, 130, 246, 0.2);
+}
+
+.cliente-info-modal h6 {
+    color: #edf0f1;
+    margin-bottom: 8px;
+    font-weight: 600;
+}
+
+.cliente-info-modal p {
+    color: #9ca3af;
+    margin: 0;
+    font-size: 14px;
+}
+
+/* Form controls nos modais */
+.modal-custom .form-control {
+    background-color: rgba(45, 45, 48, 0.8);
+    border: 2px solid rgba(59, 130, 246, 0.3);
+    color: #edf0f1;
+    border-radius: 8px;
+    padding: 10px 14px;
+}
+
+.modal-custom .form-control:focus {
+    background-color: rgba(45, 45, 48, 0.9);
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+    color: #edf0f1;
+}
+
+.modal-custom .form-label {
+    color: #edf0f1;
+    font-weight: 500;
+    margin-bottom: 8px;
+    min-height: 45px;
+    display: flex;
+    align-items: center;
+}
+
+/* Responsividade */
+@media (max-width: 768px) {
+    .trocas-header {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+    
+    .troca-card-header {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .acoes {
+        justify-content: center;
+    }
+    
+    .data-info {
+        text-align: center;
+        flex-direction: column;
+        gap: 8px;
+    }
+    
+    .status-container {
+        justify-content: center;
+    }
+    
+    .filtros-container .row {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .filtros-container {
+        padding: 20px 15px;
+    }
+    
+    .trocas-container {
+        padding: 20px 15px;
+    }
+    
+    .troca-card-header,
+    .troca-card-body {
+        padding: 15px;
+    }
+    
+    .cliente-info h5 {
+        font-size: 16px;
+    }
+    
+    .veiculo-info {
+        font-size: 13px;
+    }
+}
+
+/* Animações */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.troca-card {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.troca-card:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.troca-card:nth-child(3) {
+    animation-delay: 0.2s;
+}
+
+.troca-card:nth-child(4) {
+    animation-delay: 0.3s;
+}

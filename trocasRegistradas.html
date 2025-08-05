@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rtd Cambios - Trocas Registradas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./styles/painel.css">
+    <link rel="stylesheet" href="./styles/trocasRegistradas.css">
+    <link rel="shortcut icon" href="./images/logo.png" type="image/png">
+</head>
+<body>
+
+    <header>
+        <img class="logo" src="images/logo.png" alt="Logo" onclick="window.location.href='painel.html'" style="cursor: pointer;">
+        <div class="header-nav">
+            <a href="trocaOleo.html" class="nav-link">
+                <i class="fas fa-oil-can"></i>
+                <span>Registrar Troca</span>
+            </a>
+            <a href="painel.html" class="home-btn">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="#" class="sair" id="btn-sair">Sair</a>
+        </div>
+        <script>
+            const logout = document.getElementById('btn-sair')
+            const token = localStorage.getItem('token')
+            logout.addEventListener('click', async ()=>{
+                const data = await fetch('http://172.16.5.57:3000/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                const response = await data.json()
+                if(response){
+                    window.location.href = 'login.html'
+                } else {
+                    console.log('Erro ao fazer Logout')
+                }
+            })
+        </script>
+    </header>
+
+    <main class="container mt-4">
+        <div class="painel-header">
+            <h1><i class="fas fa-list-check me-3"></i>Trocas Registradas</h1>
+            <p class="lead">Visualize, edite ou exclua os registros de troca de óleo</p>
+        </div>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                
+                <!-- Filtros -->
+                <div class="filtros-container mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="selectClienteFiltro" class="form-label fw-bold text-light">
+                                <i class="fas fa-user me-2"></i>Filtrar por Cliente:
+                            </label>
+                            <select id="selectClienteFiltro" class="form-select form-select-custom">
+                                <option value="">Todos os Clientes</option>
+                                <!-- Clientes serão carregados via JS -->
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label for="selectVeiculoFiltro" class="form-label fw-bold text-light">
+                                <i class="fas fa-car me-2"></i>Filtrar por Veículo:
+                            </label>
+                            <select id="selectVeiculoFiltro" class="form-select form-select-custom" disabled>
+                                <option value="">Todos os Veículos</option>
+                                <!-- Veículos serão carregados via JS -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Trocas -->
+                <div class="trocas-container">
+                    <div class="trocas-header">
+                        <h3><i class="fas fa-history me-2"></i>Histórico de Trocas</h3>
+                        <div class="total-registros">
+                            <span class="badge bg-primary"><span id="totalRegistros">0</span> registro(s)</span>
+                        </div>
+                    </div>
+
+                    <!-- Loading -->
+                    <div id="loading" class="loading-container">
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Carregando...</span>
+                        </div>
+                        <p class="mt-2">Carregando registros...</p>
+                    </div>
+
+                    <!-- Lista vazia -->
+                    <div id="listaVazia" class="lista-vazia" style="display: none;">
+                        <i class="fas fa-inbox fa-3x mb-3"></i>
+                        <h4>Nenhum registro encontrado</h4>
+                        <p>Não há trocas de óleo registradas para os filtros selecionados.</p>
+                    </div>
+
+                    <!-- Cards das Trocas -->
+                    <div id="listaTrocas" class="trocas-list">
+                        <!-- Exemplo de card - será gerado dinamicamente -->
+                        <div class="troca-card" data-id="1">
+                            <div class="troca-card-header">
+                                <div class="cliente-info">
+                                    <h5><i class="fas fa-user me-2"></i>João Silva</h5>
+                                    <p class="veiculo-info">
+                                        <i class="fas fa-car me-1"></i>
+                                        <strong>Honda Civic</strong> - <span class="placa">ABC-1234</span>
+                                    </p>
+                                </div>
+                                <div class="acoes">
+                                    <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca(1)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca(1)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="troca-card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="data-info">
+                                            <i class="fas fa-calendar-check text-success me-2"></i>
+                                            <div>
+                                                <strong>Troca Realizada:</strong>
+                                                <p class="mb-0">15/01/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-info">
+                                            <i class="fas fa-calendar-plus text-warning me-2"></i>
+                                            <div>
+                                                <strong>Próxima Troca:</strong>
+                                                <p class="mb-0">15/07/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-tachometer-alt text-info me-2"></i>
+                                            <div>
+                                                <strong>Km Atual:</strong>
+                                                <p class="mb-0">50.000 km</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-road text-info me-2"></i>
+                                            <div>
+                                                <strong>Próximo Km:</strong>
+                                                <p class="mb-0">55.000 km</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-oil-can text-primary me-2"></i>
+                                            <div>
+                                                <strong>Tipo de Óleo:</strong>
+                                                <p class="mb-0">Castrol GTX 20W-50</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status-container mt-3">
+                                    <span class="badge status-badge status-em-dia">
+                                        <i class="fas fa-check-circle me-1"></i>Em dia
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Outro exemplo - Atrasado -->
+                        <div class="troca-card" data-id="2">
+                            <div class="troca-card-header">
+                                <div class="cliente-info">
+                                    <h5><i class="fas fa-user me-2"></i>Maria Santos</h5>
+                                    <p class="veiculo-info">
+                                        <i class="fas fa-car me-1"></i>
+                                        <strong>Toyota Corolla</strong> - <span class="placa">XYZ-5678</span>
+                                    </p>
+                                </div>
+                                <div class="acoes">
+                                    <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca(2)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca(2)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="troca-card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="data-info">
+                                            <i class="fas fa-calendar-check text-success me-2"></i>
+                                            <div>
+                                                <strong>Troca Realizada:</strong>
+                                                <p class="mb-0">10/12/2023</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-info">
+                                            <i class="fas fa-calendar-plus text-warning me-2"></i>
+                                            <div>
+                                                <strong>Próxima Troca:</strong>
+                                                <p class="mb-0">10/06/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-tachometer-alt text-info me-2"></i>
+                                            <div>
+                                                <strong>Km Atual:</strong>
+                                                <p class="mb-0">75.000 km</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-road text-info me-2"></i>
+                                            <div>
+                                                <strong>Próximo Km:</strong>
+                                                <p class="mb-0">80.000 km</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-oil-can text-primary me-2"></i>
+                                            <div>
+                                                <strong>Tipo de Óleo:</strong>
+                                                <p class="mb-0">Mobil 1 5W-30</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status-container mt-3">
+                                    <span class="badge status-badge status-atrasado">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>Atrasado
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Exemplo - Próximo do vencimento -->
+                        <div class="troca-card" data-id="3">
+                            <div class="troca-card-header">
+                                <div class="cliente-info">
+                                    <h5><i class="fas fa-user me-2"></i>Carlos Oliveira</h5>
+                                    <p class="veiculo-info">
+                                        <i class="fas fa-car me-1"></i>
+                                        <strong>Ford Focus</strong> - <span class="placa">DEF-9012</span>
+                                    </p>
+                                </div>
+                                <div class="acoes">
+                                    <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca(3)">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca(3)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="troca-card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="data-info">
+                                            <i class="fas fa-calendar-check text-success me-2"></i>
+                                            <div>
+                                                <strong>Troca Realizada:</strong>
+                                                <p class="mb-0">20/02/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="data-info">
+                                            <i class="fas fa-calendar-plus text-warning me-2"></i>
+                                            <div>
+                                                <strong>Próxima Troca:</strong>
+                                                <p class="mb-0">20/08/2024</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row mt-2">
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-tachometer-alt text-info me-2"></i>
+                                            <div>
+                                                <strong>Km Atual:</strong>
+                                                <p class="mb-0">32.500 km</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-road text-info me-2"></i>
+                                            <div>
+                                                <strong>Próximo Km:</strong>
+                                                <p class="mb-0">37.500 km</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <div class="data-info">
+                                            <i class="fas fa-oil-can text-primary me-2"></i>
+                                            <div>
+                                                <strong>Tipo de Óleo:</strong>
+                                                <p class="mb-0">Shell Helix 10W-40</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="status-container mt-3">
+                                    <span class="badge status-badge status-proximo">
+                                        <i class="fas fa-clock me-1"></i>Próximo do vencimento
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal de Confirmação de Exclusão -->
+    <div class="modal fade" id="modalExcluir" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-custom">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                        Confirmar Exclusão
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Tem certeza que deseja excluir este registro de troca de óleo?</p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Atenção:</strong> Esta ação não pode ser desfeita.
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-danger" id="confirmarExclusao">
+                        <i class="fas fa-trash me-2"></i>Excluir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de Edição -->
+    <div class="modal fade" id="modalEditar" tabindex="-1">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content modal-custom">
+                <div class="modal-header">
+                    <h5 class="modal-title">
+                        <i class="fas fa-edit text-warning me-2"></i>
+                        Editar Registro de Troca
+                    </h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form id="formEditar">
+                        <div class="cliente-info-modal mb-3">
+                            <h6><i class="fas fa-user me-2"></i>Cliente: <span id="editClienteNome"></span></h6>
+                            <p><i class="fas fa-car me-2"></i>Veículo: <span id="editVeiculoInfo"></span></p>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editDataTroca" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-check me-2"></i>Data da Troca Realizada:
+                                </label>
+                                <input type="date" id="editDataTroca" class="form-control mb-3" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editProximaTroca" class="form-label fw-bold">
+                                    <i class="fas fa-calendar-plus me-2"></i>Data da Próxima Troca:
+                                </label>
+                                <input type="date" id="editProximaTroca" class="form-control mb-3" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="editKmAtual" class="form-label fw-bold">
+                                    <i class="fas fa-tachometer-alt me-2"></i>Km Atual (Troca Realizada):
+                                </label>
+                                <input type="number" id="editKmAtual" class="form-control mb-3" placeholder="Ex: 50000" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="editKmProxima" class="form-label fw-bold">
+                                    <i class="fas fa-road me-2"></i>Km da Próxima Troca:
+                                </label>
+                                <input type="number" id="editKmProxima" class="form-control mb-3" placeholder="Ex: 55000" required>
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-12">
+                                <label for="editTipoOleo" class="form-label fw-bold">
+                                    <i class="fas fa-oil-can me-2"></i>Tipo de Óleo Utilizado:
+                                </label>
+                                <input type="text" id="editTipoOleo" class="form-control mb-3" placeholder="Ex: Castrol GTX 20W-50" required>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="button" class="btn btn-success" id="salvarEdicao">
+                        <i class="fas fa-save me-2"></i>Salvar Alterações
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // ==========================================
+        // FUNÇÕES PRINCIPAIS (PLACEHOLDER)
+        // ==========================================
+        
+        function editarTroca(id) {
+            console.log('Editando troca ID:', id);
+            
+            try {
+                const card = document.querySelector(`[data-id="${id}"]`);
+                if (!card) {
+                    console.error('Card não encontrado para ID:', id);
+                    return;
+                }
+                
+                const cardHeader = card.querySelector('.troca-card-header');
+                const cardBody = card.querySelector('.troca-card-body');
+                
+                // Extrair informações do cliente
+                const clienteNome = cardHeader.querySelector('h5').textContent.replace('', '').trim();
+                const veiculo = cardHeader.querySelector('.veiculo-info strong').textContent;
+                const placa = cardHeader.querySelector('.placa').textContent;
+                
+                // Extrair dados dos campos
+                const dataInfos = cardBody.querySelectorAll('.data-info p');
+                const dataTroca = dataInfos[0].textContent; // Troca Realizada
+                const proximaTroca = dataInfos[1].textContent; // Próxima Troca
+                const kmAtual = dataInfos[2].textContent.replace(' km', '').replace(/\./g, '');
+                const kmProxima = dataInfos[3].textContent.replace(' km', '').replace(/\./g, '');
+                const tipoOleo = dataInfos[4].textContent;
+                
+                // Preencher o modal
+                document.getElementById('editClienteNome').textContent = clienteNome;
+                document.getElementById('editVeiculoInfo').textContent = `${veiculo} - ${placa}`;
+                
+                // Converter datas para formato input (YYYY-MM-DD)
+                const dataPartes = dataTroca.split('/');
+                document.getElementById('editDataTroca').value = `${dataPartes[2]}-${dataPartes[1].padStart(2, '0')}-${dataPartes[0].padStart(2, '0')}`;
+                
+                const proximaPartes = proximaTroca.split('/');
+                document.getElementById('editProximaTroca').value = `${proximaPartes[2]}-${proximaPartes[1].padStart(2, '0')}-${proximaPartes[0].padStart(2, '0')}`;
+                
+                // Preencher os novos campos
+                document.getElementById('editKmAtual').value = kmAtual;
+                document.getElementById('editKmProxima').value = kmProxima;
+                document.getElementById('editTipoOleo').value = tipoOleo;
+                
+                // Mostrar o modal
+                const modal = new bootstrap.Modal(document.getElementById('modalEditar'));
+                modal.show();
+                
+                // Armazenar o ID para salvar depois
+                document.getElementById('modalEditar').setAttribute('data-editing-id', id);
+                
+            } catch (error) {
+                console.error('Erro ao editar troca:', error);
+                alert('Erro ao carregar dados para edição. Verifique o console.');
+            }
+        }
+
+        function excluirTroca(id) {
+            console.log('Preparando exclusão da troca ID:', id);
+            
+            // Armazenar o ID para exclusão
+            document.getElementById('confirmarExclusao').setAttribute('data-id', id);
+            
+            // Mostrar modal de confirmação
+            const modal = new bootstrap.Modal(document.getElementById('modalExcluir'));
+            modal.show();
+        }
+
+        function salvarEdicao() {
+            try {
+                const id = document.getElementById('modalEditar').getAttribute('data-editing-id');
+                const card = document.querySelector(`[data-id="${id}"]`);
+                const cardBody = card.querySelector('.troca-card-body');
+                
+                // Pegar valores do formulário
+                const dataTroca = document.getElementById('editDataTroca').value;
+                const proximaTroca = document.getElementById('editProximaTroca').value;
+                const kmAtual = document.getElementById('editKmAtual').value;
+                const kmProxima = document.getElementById('editKmProxima').value;
+                const tipoOleo = document.getElementById('editTipoOleo').value;
+                
+                // Validar campos obrigatórios
+                if (!dataTroca || !proximaTroca || !kmAtual || !kmProxima || !tipoOleo) {
+                    alert('Por favor, preencha todos os campos obrigatórios.');
+                    return;
+                }
+                
+                // Converter datas para formato brasileiro
+                const dataFormatada = dataTroca.split('-').reverse().join('/');
+                const proximaFormatada = proximaTroca.split('-').reverse().join('/');
+                
+                // Formatar Km com pontos
+                const kmAtualFormatado = parseInt(kmAtual).toLocaleString('pt-BR');
+                const kmProximaFormatado = parseInt(kmProxima).toLocaleString('pt-BR');
+                
+                // Atualizar os campos no card
+                const dataInfos = cardBody.querySelectorAll('.data-info p');
+                dataInfos[0].textContent = dataFormatada; // Troca Realizada
+                dataInfos[1].textContent = proximaFormatada; // Próxima Troca
+                dataInfos[2].textContent = `${kmAtualFormatado} km`; // Km Atual
+                dataInfos[3].textContent = `${kmProximaFormatado} km`; // Próximo Km
+                dataInfos[4].textContent = tipoOleo; // Tipo de Óleo
+                
+                // Fechar o modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditar'));
+                modal.hide();
+                
+                // Simular salvamento (PLACEHOLDER - será substituído pela API)
+                console.log('PLACEHOLDER: Salvando troca ID:', id, {
+                    dataTroca: dataFormatada,
+                    proximaTroca: proximaFormatada,
+                    kmAtual: kmAtual,
+                    kmProxima: kmProxima,
+                    tipoOleo: tipoOleo
+                });
+                
+                // Mostrar mensagem de sucesso
+                alert('✅ Troca atualizada com sucesso!\n\n(PLACEHOLDER - Integrando com backend)');
+                
+            } catch (error) {
+                console.error('Erro ao salvar edição:', error);
+                alert('Erro ao salvar alterações. Verifique o console.');
+            }
+        }
+
+        function confirmarExclusao() {
+            const id = document.getElementById('confirmarExclusao').getAttribute('data-id');
+            
+            // Simular exclusão (PLACEHOLDER - será substituído pela API)
+            console.log('PLACEHOLDER: Excluindo troca ID:', id);
+            
+            // Remover o card da tela (simulação)
+            const card = document.querySelector(`[data-id="${id}"]`);
+            if (card) {
+                card.style.transition = 'all 0.3s ease';
+                card.style.opacity = '0';
+                card.style.transform = 'translateX(-100%)';
+                
+                setTimeout(() => {
+                    card.remove();
+                    atualizarContadorRegistros();
+                }, 300);
+            }
+            
+            // Fechar modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalExcluir'));
+            modal.hide();
+            
+            // Mostrar mensagem de sucesso
+            setTimeout(() => {
+                alert('🗑️ Registro excluído com sucesso!\n\n(PLACEHOLDER - Integrando com backend)');
+            }, 400);
+        }
+
+        function atualizarContadorRegistros() {
+            const totalCards = document.querySelectorAll('.troca-card').length;
+            document.getElementById('totalRegistros').textContent = totalCards;
+            
+            if (totalCards === 0) {
+                document.getElementById('listaTrocas').style.display = 'none';
+                document.getElementById('listaVazia').style.display = 'block';
+            }
+        }
+
+        // ==========================================
+        // EVENT LISTENERS
+        // ==========================================
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Página Trocas Registradas carregada (MODO PLACEHOLDER)');
+            
+            // Simular carregamento inicial
+            setTimeout(() => {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('totalRegistros').textContent = '3';
+                console.log('✅ Carregamento simulado concluído');
+            }, 1500);
+            
+            // Event listener para salvar edição
+            document.getElementById('salvarEdicao').addEventListener('click', salvarEdicao);
+            
+            // Event listener para confirmar exclusão
+            document.getElementById('confirmarExclusao').addEventListener('click', confirmarExclusao);
+            
+            // Filtros (PLACEHOLDER)
+            document.getElementById('selectClienteFiltro').addEventListener('change', function() {
+                const clienteId = this.value;
+                const selectVeiculo = document.getElementById('selectVeiculoFiltro');
+                
+                console.log('PLACEHOLDER: Filtrando por cliente:', clienteId);
+                
+                if (clienteId) {
+                    selectVeiculo.disabled = false;
+                    // TODO: Carregar veículos do cliente via API
+                } else {
+                    selectVeiculo.disabled = true;
+                    selectVeiculo.value = '';
+                }
+            });
+
+            document.getElementById('selectVeiculoFiltro').addEventListener('change', function() {
+                const veiculoId = this.value;
+                console.log('PLACEHOLDER: Filtrando por veículo:', veiculoId);
+                // TODO: Filtrar lista de trocas por veículo via API
+            });
+        });
+
+        // ==========================================
+        // UTILITÁRIOS PLACEHOLDER
+        // ==========================================
+        
+        // Função para simular carregamento de dados (será substituída pela integração com API)
+        function carregarDadosPlaceholder() {
+            console.log('🔄 PLACEHOLDER: Simulando carregamento de dados...');
+            // TODO: Implementar carregamento real via fetch para API
+        }
+        
+        // Função para simular filtros (será substituída pela integração com API)
+        function aplicarFiltrosPlaceholder(clienteId, veiculoId) {
+            console.log('🔍 PLACEHOLDER: Aplicando filtros:', { clienteId, veiculoId });
+            // TODO: Implementar filtros reais via API
+        }
+    </script>
+
+</body>
+</html>

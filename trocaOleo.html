@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rtd Cambios - Troca de Óleo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./styles/painel.css">
+    <link rel="shortcut icon" href="./images/logo.png" type="image/png">
+</head>
+<body>
+
+    <header>
+        <img class="logo" src="images/logo.png" alt="Logo" onclick="window.location.href='painel.html'" style="cursor: pointer;">
+        <div class="header-nav">
+            <a href="trocasRegistradas.html" class="nav-link">
+                <i class="fas fa-list-check"></i>
+                <span>Trocas Registradas</span>
+            </a>
+            <a href="painel.html" class="home-btn">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="#" class="sair" id="btn-sair">Sair</a>
+        </div>
+        <script>
+            const logout = document.getElementById('btn-sair')
+            const token = localStorage.getItem('token')
+            logout.addEventListener('click', async ()=>{
+                const data = await fetch('http://172.16.5.57:3000/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                const response = await data.json()
+                if(response){
+                    window.location.href = 'login.html'
+                } else {
+                    console.log('Erro ao fazer Logout')
+                }
+            })
+        </script>
+    </header>
+
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                <!-- Botões para alternar entre formulários -->
+                <div class="text-center mb-4">
+                    <button class="btn btn-outline-light me-2" onclick="mostrarForm('cliente')">Selecionar Cliente</button>
+                    <button class="btn btn-outline-light" id="btnRegistrarServico" onclick="mostrarFormServico()" disabled>Registrar Serviço</button>
+                </div>
+
+                <!-- Formulário Seleção de Cliente -->
+                <div id="formCliente" class="form-container">
+                    <h1>Selecionar Cliente e Veículo</h1>
+                    <form id="formSelecionarVeiculo">
+                        <select name="clienteId" id="selectCliente" required>
+                            <option value="">Selecione o Cliente</option>
+                        </select>
+                        <select name="veiculoId" id="selectVeiculo" required disabled>
+                            <option value="">Selecione o Veículo</option>
+                        </select>
+                        <button type="button" class="btn-registro" onclick="continuarParaServico()">Continuar</button>
+                    </form>
+                </div>
+
+                <!-- Formulário Troca de Óleo -->
+                <div id="formServico" class="form-container" style="display: none;">
+                    <h1>Registrar Troca de Óleo</h1>
+                    <form id="formTrocaOleo">
+                        <div class="cliente-info" id="clienteInfo" style="display: none;">
+                            <p><strong>Cliente:</strong> <span id="nomeCliente"></span></p>
+                            <p><strong>Veículo:</strong> <span id="modeloVeiculo"></span> - <span id="placaVeiculo"></span></p>
+                        </div>
+                        <input type="hidden" name="clienteId" id="hiddenClienteId">
+                        <input type="hidden" name="veiculoId" id="hiddenVeiculoId">
+                        
+                        <label for="dataTroca" class="form-label fw-bold text-light mb-2">
+                            <i class="fas fa-calendar-check me-2"></i>Data da Troca Realizada:
+                        </label>
+                        <input type="date" name="dataTroca" id="dataTroca" class="form-control mb-3" required>
+                        
+                        <label for="proximaTroca" class="form-label fw-bold text-light mb-2">
+                            <i class="fas fa-calendar-plus me-2"></i>Data da Próxima Troca:
+                        </label>
+                        <input type="date" name="dataServico" id="proximaTroca" class="form-control mb-3" required>
+                        
+                        <label for="kmAtual" class="form-label fw-bold text-light mb-2">
+                            <i class="fas fa-tachometer-alt me-2"></i>Km Atual (Troca Realizada):
+                        </label>
+                        <input type="number" name="kmAtual" id="kmAtual" class="form-control mb-3" placeholder="Ex: 50000" required>
+                        
+                        <label for="kmProxima" class="form-label fw-bold text-light mb-2">
+                            <i class="fas fa-road me-2"></i>Km da Próxima Troca:
+                        </label>
+                        <input type="number" name="kmProxima" id="kmProxima" class="form-control mb-3" placeholder="Ex: 55000" required>
+                        
+                        <label for="tipoOleo" class="form-label fw-bold text-light mb-2">
+                            <i class="fas fa-oil-can me-2"></i>Tipo de Óleo Utilizado:
+                        </label>
+                        <input type="text" name="tipoOleo" id="tipoOleo" class="form-control mb-4" placeholder="Ex: Castrol GTX 20W-50" required>
+                        
+                        <button type="submit" class="btn-registro">Registrar Troca de Óleo</button>
+                        
+                        <div class="alert alert-info mt-3 d-flex align-items-center">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <small>
+                                <strong>Lembrete Automático:</strong> O cliente receberá notificações por WhatsApp 
+                                <strong>7 e 1 dia antes</strong> da próxima troca programada.
+                            </small>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    // Funções para navegação entre formulários
+    function mostrarForm(tipo) {
+        document.getElementById('formCliente').style.display = tipo === 'cliente' ? 'block' : 'none';
+        document.getElementById('formServico').style.display = tipo === 'servico' ? 'block' : 'none';
+        
+        // Limpar informações do cliente quando voltar para seleção
+        if (tipo === 'cliente') {
+            document.getElementById('clienteInfo').style.display = 'none';
+            // Desabilitar o botão de registrar serviço quando voltar para seleção
+            desabilitarBotaoRegistrarServico();
+            // Resetar os selects
+            document.getElementById('selectCliente').value = '';
+            document.getElementById('selectVeiculo').value = '';
+            document.getElementById('selectVeiculo').disabled = true;
+            document.getElementById('selectVeiculo').innerHTML = '<option value="">Selecione o Veículo</option>';
+        }
+    }
+
+    // Função para habilitar o botão de registrar serviço
+    function habilitarBotaoRegistrarServico() {
+        const btnRegistrarServico = document.getElementById('btnRegistrarServico');
+        btnRegistrarServico.disabled = false;
+        btnRegistrarServico.style.opacity = '1';
+        btnRegistrarServico.style.cursor = 'pointer';
+    }
+
+    // Função para desabilitar o botão de registrar serviço
+    function desabilitarBotaoRegistrarServico() {
+        const btnRegistrarServico = document.getElementById('btnRegistrarServico');
+        btnRegistrarServico.disabled = true;
+        btnRegistrarServico.style.opacity = '0.5';
+        btnRegistrarServico.style.cursor = 'not-allowed';
+    }
+
+    // Função específica para mostrar o formulário de serviço (só funciona se estiver habilitado)
+    function mostrarFormServico() {
+        const selectCliente = document.getElementById('selectCliente');
+        const selectVeiculo = document.getElementById('selectVeiculo');
+        
+        // Verificar se cliente e veículo estão selecionados
+        if (!selectCliente.value || !selectVeiculo.value) {
+            alert('Você precisa selecionar um cliente e veículo primeiro.');
+            mostrarForm('cliente');
+            return;
+        }
+        
+        // Mostrar o formulário de serviço
+        mostrarInfoCliente();
+        mostrarForm('servico');
+    }
+
+    // Mostrar informações do cliente/veículo no formulário de serviço
+    function mostrarInfoCliente() {
+        const selectCliente = document.getElementById('selectCliente');
+        const selectVeiculo = document.getElementById('selectVeiculo');
+        
+        if (selectCliente.value && selectVeiculo.value) {
+            const clienteNome = selectCliente.options[selectCliente.selectedIndex].textContent;
+            const veiculoOption = selectVeiculo.options[selectVeiculo.selectedIndex];
+            
+            document.getElementById('nomeCliente').textContent = clienteNome;
+            document.getElementById('modeloVeiculo').textContent = veiculoOption.dataset.modelo;
+            document.getElementById('placaVeiculo').textContent = veiculoOption.dataset.placa;
+            document.getElementById('hiddenClienteId').value = selectCliente.value;
+            document.getElementById('hiddenVeiculoId').value = selectVeiculo.value;
+            document.getElementById('clienteInfo').style.display = 'block';
+            
+            // Definir data atual como padrão para a data da troca
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('dataTroca').value = hoje;
+        }
+    }
+
+    // Função para validar e continuar para o formulário de serviço
+    function continuarParaServico() {
+        const selectCliente = document.getElementById('selectCliente');
+        const selectVeiculo = document.getElementById('selectVeiculo');
+        
+        // Validar se cliente foi selecionado
+        if (!selectCliente.value) {
+            alert('Por favor, selecione um cliente.');
+            selectCliente.focus();
+            return;
+        }
+        
+        // Validar se veículo foi selecionado
+        if (!selectVeiculo.value) {
+            alert('Por favor, selecione um veículo.');
+            selectVeiculo.focus();
+            return;
+        }
+        
+        // Se tudo estiver válido, ir direto para o formulário de serviço
+        mostrarInfoCliente();
+        habilitarBotaoRegistrarServico();
+        mostrarFormServico(); // ✅ Chama automaticamente!
+
+    }
+
+    // Inicialização da página
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar o botão como desabilitado
+        desabilitarBotaoRegistrarServico();
+        
+        // Calcular automaticamente a próxima quilometragem (5000km a mais)
+        const kmAtualInput = document.getElementById('kmAtual');
+        const kmProximaInput = document.getElementById('kmProxima');
+        
+        if (kmAtualInput && kmProximaInput) {
+            kmAtualInput.addEventListener('input', function() {
+                const kmAtual = parseInt(this.value) || 0;
+                if (kmAtual > 0) {
+                    kmProximaInput.value = kmAtual + 5000;
+                }
+            });
+        }
+    });
+</script>
+<script src="./js/trocarOleo.js"></script>
+</body>
+</html>

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTD Cambios - Painel Principal</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./styles/painel.css">
+    <link rel="shortcut icon" href="./images/logo.png" type="image/png">
+</head>
+<body>
+    <header>
+        <img class="logo" src="images/logo.png" alt="Logo" onclick="redirectTo('painel.html')" style="cursor: pointer;">
+        <div class="header-nav">
+            <a href="painel.html" class="home-btn">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="#" class="sair" id="btn-sair">Sair</a>
+        </div>
+        <script>
+            const logout = document.getElementById('btn-sair')
+            const token = localStorage.getItem('token')
+            logout.addEventListener('click', async ()=>{
+                const data = await fetch('http://172.16.5.57:3000/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                const response = await data.json()
+                if(response){
+                    window.location.href = 'login.html'
+                } else {
+                    console.log('Erro ao fazer Logout')
+                }
+            })
+        </script>
+    </header>
+
+    <main class="painel-main">
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-12">
+                    <div class="painel-header">
+                        <h1>Painel Principal</h1>
+                        <p>Escolha uma das opções abaixo para continuar</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row justify-content-center">
+                <div class="col-lg-4 col-md-6 col-12 mb-4">
+                    <div class="painel-card" onclick="redirectTo('registros.html')">
+                        <div class="card-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Registrar Cliente/Carro</h3>
+                            <p>Cadastre novos clientes e seus veículos no sistema</p>
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-lg-4 col-md-6 col-12 mb-4">
+                    <div class="painel-card" onclick="redirectTo('trocaOleo.html')">
+                        <div class="card-icon oil-icon">
+                            <i class="fas fa-oil-can"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Registrar Troca de Óleo</h3>
+                            <p>Registre novos serviços de troca de óleo realizados</p>
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-4 col-md-6 col-12 mb-4">
+                    <div class="painel-card" onclick="redirectTo('trocasRegistradas.html')">
+                        <div class="card-icon history-icon">
+                            <i class="fas fa-list-check"></i>
+                        </div>
+                        <div class="card-content">
+                            <h3>Trocas Registradas</h3>
+                            <p>Visualize e gerencie registros de trocas de óleo</p>
+                        </div>
+                        <div class="card-arrow">
+                            <i class="fas fa-arrow-right"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function redirectTo(page) {
+            window.location.href = page;
+        }
+
+        // Animação de entrada
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.painel-card');
+            cards.forEach((card, index) => {
+                setTimeout(() => {
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 200);
+            });
+        });
+    </script>
+</body>
+</html>

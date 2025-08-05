@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RTD Cambios - Registros</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link rel="stylesheet" href="./styles/painel.css">
+    <link rel="shortcut icon" href="./images/logo.png" type="image/png">
+</head>
+<body>
+    <header>
+        <img class="logo" src="images/logo.png" alt="Logo" onclick="window.location.href='painel.html'" style="cursor: pointer;">
+        <div class="header-nav">
+            <a href="painel.html" class="home-btn">
+                <i class="fas fa-home"></i>
+                <span>Início</span>
+            </a>
+            <a href="#" class="sair" id="btn-sair">Sair</a>
+        </div>
+        <script>
+            const logout = document.getElementById('btn-sair')
+            const token = localStorage.getItem('token')
+            logout.addEventListener('click', async ()=>{
+                const data = await fetch('http://172.16.5.57:3000/admin/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    }
+                })
+                const response = await data.json()
+                if(response){
+                    window.location.href = 'login.html'
+                } else {
+                    console.log('Erro ao fazer Logout')
+                }
+            })
+        </script>
+    </header>
+
+    <main class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                
+                <!-- Botões para alternar entre formulários -->
+                <div class="text-center mb-4">
+                    <button class="btn btn-outline-light me-2" onclick="mostrarForm('cliente')">Cadastrar Cliente</button>
+                    <button class="btn btn-outline-light" onclick="mostrarForm('carro')">Cadastrar Veículo</button>
+                </div>
+
+                <!-- Formulário Cliente -->
+                <div id="formCliente" class="form-container">
+                    <h1>Registrar Cliente</h1>
+                    <form id="formClientes">
+                        <input type="text" name="nome" placeholder="Nome Completo" required>
+                        <input type="email" name="email" placeholder="E-mail" required>
+                        <input type="tel" name="telefone"  placeholder="Telefone" required>
+                        <button type="submit" class="btn-registro">Registrar</button>
+                    </form>
+                </div>
+
+                <!-- Formulário Carro -->
+                <div id="formCarro" class="form-container" style="display: none;">
+                    <h1>Registrar Veículo</h1>
+                    <form id="formCarros">
+                        <select name="clienteId" required>
+                            <option value="">Selecione o Cliente</option>
+                        </select>
+                        <input type="text" name="placa" placeholder="Placa (ABC-1234)" required>
+                        <input type="text" name="modelo" placeholder="Modelo do Veículo" required>
+                        <button type="submit" class="btn-registro">Registrar</button>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        function mostrarForm(tipo) {
+            document.getElementById('formCliente').style.display = tipo === 'cliente' ? 'block' : 'none';
+            document.getElementById('formCarro').style.display = tipo === 'carro' ? 'block' : 'none';
+        }
+    </script>
+    <script src="js/registrarCliente.js"></script>
+    <script src="js/registrarCarro.js"></script>
+</body>
+</html>
