@@ -34,7 +34,7 @@ form.addEventListener('submit',(event)=>{
     .then(data => {
         localStorage.setItem('token', data.token);
         console.log('Sucesso:', data);
-        window.location.href ='registros.html'
+        window.location.href ='painel.html'
         form.reset(); 
     })
     .catch(err => {
