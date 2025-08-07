@@ -193,7 +193,7 @@ formOleo.addEventListener('submit',async (event)=>{
         dados[chave] = valor
     }
 
-    console.log(dados)
+    console.log('os dados: ',dados)
 
     // Converter datas para formato ISO-8601
     const oleoDataTroca = new Date(dados.oleoDataTroca).toISOString();

@@ -17,7 +17,6 @@ async function pegarDadosClientes(){
             throw new Error(`Erro ${response.status}: ${response.statusText}`);
         }
         const data = await response.json()
-        console.log(data)
         const selectCliente = document.getElementById('selectClienteFiltro')
         selectCliente.innerHTML ='<option value="">Selecionar Cliente</option>'
         data.forEach(cliente =>{
@@ -49,7 +48,10 @@ async function pegarDadosCarro(idCliente){
         }
 
         const data = await response.json()
-        console.log(data)
+        const carregarDados = carregarDadosCarroTela(data)
+        if(!carregarDados){
+            console.log('Erro ao carregar a lista de carros do cliente!')
+        }
         return data
     } catch (error) {
         console.log(`Erro ao listar Clientes: ${error.message}`)
@@ -57,7 +59,6 @@ async function pegarDadosCarro(idCliente){
 }
 
 async function pegarDadosTrocaOleo(data){
-    const idCarro = data.carroId
     const token = localStorage.getItem('token')
     try {
         const response = await fetch('http://172.16.5.57:3000/oleo/listar',{
@@ -67,7 +68,7 @@ async function pegarDadosTrocaOleo(data){
             'Authorization': `Bearer ${token}`
          },
         body: JSON.stringify({
-            carroId: idCarro
+            carroId: data
          })
         })
         if(!response){
@@ -75,40 +76,63 @@ async function pegarDadosTrocaOleo(data){
         }
 
         const dados = await response.json()
-        const loadData = await carregarDadosTela(dados)
-
+        const loadData = await carregarDadosTelaTrocaOleo(dados)
         if(!loadData){
-            console.log('Erro ao carregar os dados na tela')
+            console.error('❌ Erro ao carregar os dados na tela - verifique se a função carregarDadosTelaTrocaOleo está funcionando')
         }
+        return true 
 
     } catch (error) {
         console.log(`Erro ao carregar os dados de troca de óleo: ${error.message}`)
+        return false 
     }
 }
 
 
 
+async function carregarDadosCarroTela(dadosCarro){
+    const dropDown = document.getElementById('selectVeiculoFiltro')
+    dropDown.innerHTML = '<option value="">Selecionar Veículo do Cliente</option>'
+    for(let i = 0; i < dadosCarro.length; i++){
+        const option = document.createElement('option')
+        option.value = dadosCarro[i].id
+        option.textContent = dadosCarro[i].modelo
+        dropDown.appendChild(option)
+    }
+}
 
-async function carregarDadosTela(dados){
+function formatarDataBrasileira(dataISO){
+    const data = new Date(dataISO)
+    const dia = String(data.getDate()).padStart(2,'0')
+    const mes = String(data.getMonth() + 1).padStart(2, '0'); 
+    const ano = data.getFullYear();
+
+    return `${dia}/${mes}/${ano}`;
+}
+
+function contador(tamanhoData){
+    const contador = document.getElementById('totalRegistros')
+    contador.textContent = '0'
+    const novoValor = `${tamanhoData.length}`
+    contador.textContent = novoValor
+}
+
+async function carregarDadosTelaTrocaOleo(dados){
+    
     const data = dados
+    contador(dados)
     const lista = document.getElementById('listaTrocas')
-    data.forEach( trocas =>{
+    lista.innerHTML = ''
+    for(let i = 0; i < data.length; i++){
         const card = document.createElement('div')
-        card.innerHTML = `
-            <div class="troca-card" data-id="${trocas.id}">
+                card.innerHTML = `
+            <div class="troca-card" data-id="${data[i].id}">
                 <div class="troca-card-header">
-                    <div class="cliente-info">
-                        <h5><i class="fas fa-user me-2"></i>${trocas.carro.cliente.nome}</h5>
-                        <p class="veiculo-info">
-                            <i class="fas fa-car me-1"></i>
-                            <strong>${trocas.carro.modelo}</strong> - <span class="placa">${trocas.carro.placa}</span>
-                        </p>
-                    </div>
                     <div class="acoes">
-                        <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca(${trocas.id})">
+                        <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca(${data[i].id})">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca(${trocas.id})">
+                        <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca(${data[i].id})">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -120,7 +144,7 @@ async function carregarDadosTela(dados){
                                 <i class="fas fa-calendar-check text-success me-2"></i>
                                 <div>
                                     <strong>Troca Realizada:</strong>
-                                    <p class="mb-0">${trocas.oleoDataTroca}</p>
+                                    <p class="mb-0">${formatarDataBrasileira(data[i].oleoDataTroca)}</p>
                                 </div>
                             </div>
                         </div>
@@ -129,7 +153,7 @@ async function carregarDadosTela(dados){
                                 <i class="fas fa-calendar-plus text-warning me-2"></i>
                                 <div>
                                     <strong>Próxima Troca:</strong>
-                                    <p class="mb-0">${trocas.oleoDataProximaTroca}</p>
+                                    <p class="mb-0">${formatarDataBrasileira(data[i].oleoDataProximaTroca)}</p>
                                 </div>
                             </div>
                         </div>
@@ -140,7 +164,7 @@ async function carregarDadosTela(dados){
                                 <i class="fas fa-tachometer-alt text-info me-2"></i>
                                 <div>
                                     <strong>Km Atual:</strong>
-                                    <p class="mb-0">${trocas.kmTroca} km</p>
+                                    <p class="mb-0">${data[i].kmTroca} km</p>
                                 </div>
                             </div>
                         </div>
@@ -149,7 +173,7 @@ async function carregarDadosTela(dados){
                                 <i class="fas fa-road text-info me-2"></i>
                                 <div>
                                     <strong>Próximo Km:</strong>
-                                    <p class="mb-0">${trocas.KmProximaTroca} km</p>
+                                    <p class="mb-0">${data[i].KmProximaTroca} km</p>
                                 </div>
                             </div>
                         </div>
@@ -158,7 +182,7 @@ async function carregarDadosTela(dados){
                                 <i class="fas fa-oil-can text-primary me-2"></i>
                                 <div>
                                     <strong>Tipo de Óleo:</strong>
-                                    <p class="mb-0">${trocas.tipoOleo}</p>
+                                    <p class="mb-0">${data[i].tipoOleo}</p>
                                 </div>
                             </div>
                         </div>
@@ -172,8 +196,9 @@ async function carregarDadosTela(dados){
             </div>
         `
         lista.appendChild(card)
-    })
 
+    }
+    return true 
 }
 
 
@@ -183,9 +208,23 @@ async function carregarDadosTela(dados){
 document.getElementById('selectClienteFiltro').addEventListener('change', async (event) =>{
     const clientId = event.target.value
     if(clientId){
-        await pegarDadosTrocaOleo(clientId)
+        const dadosCarro = await pegarDadosCarro(clientId)
+        if(!dadosCarro){
+            console.log('Erro ao executar função que pega os dados do carro pelo ClientId')
+        }
     } else {
         document.getElementById('listaTrocas').innerHTML = '';
+    }
+})
+
+document.getElementById('selectVeiculoFiltro').addEventListener('change', async (event)=>{
+    const idCarro = event.target.value
+    if(idCarro){
+        const trocas = await pegarDadosTrocaOleo(idCarro)
+        if(!trocas){
+            console.error('❌ Erro ao exibir dados da troca de óleo - ID do carro:', idCarro)
+        }
+    
     }
 })
 
@@ -198,7 +237,5 @@ window.addEventListener('DOMContentLoaded', async ()=>{
         window.location.href = 'login.html';
         return;
     }
-    console.log('Token verificado na inicialização da página');
     await pegarDadosClientes()
-
 })
