@@ -1,3 +1,5 @@
+import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../src/utils/autofillFix.js";
+  
   // Funções para navegação entre formulários
     function mostrarForm(tipo) {
         document.getElementById('formCliente').style.display = tipo === 'cliente' ? 'block' : 'none';
@@ -238,6 +240,8 @@ formOleo.addEventListener('submit',async (event)=>{
 
 
 document.addEventListener('DOMContentLoaded', async () => {
+    adicionarCSSDetecaoAutofill();
+    corrigirAutofill();
     await carregarDadosClientes();  
 });
 

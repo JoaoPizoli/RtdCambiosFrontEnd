@@ -13,36 +13,7 @@
     <link rel="shortcut icon" href="./images/logo.png" type="image/png">
 </head>
 <body>
-    <header>
-        <img class="logo" src="images/logo.png" alt="Logo" onclick="window.location.href='painel.html'" style="cursor: pointer;">
-        <div class="header-nav">
-            <a href="painel.html" class="home-btn">
-                <i class="fas fa-home"></i>
-                <span>Início</span>
-            </a>
-            <a href="#" class="sair" id="btn-sair">Sair</a>
-        </div>
-        <script>
-            const logout = document.getElementById('btn-sair')
-            const token = localStorage.getItem('token')
-            logout.addEventListener('click', async ()=>{
-                const data = await fetch('http://172.16.5.57:3000/admin/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                const response = await data.json()
-                if(response){
-                    window.location.href = 'login.html'
-                } else {
-                    console.log('Erro ao fazer Logout')
-                }
-            })
-        </script>
-    </header>
-
+    <div data-header></div>
     <main class="container mt-4">
         <div class="row justify-content-center">
             <div class="col-md-8">
@@ -88,6 +59,7 @@
             document.getElementById('formCarro').style.display = tipo === 'carro' ? 'block' : 'none';
         }
     </script>
+    <script type="module" src="./src/components/header.js"></script>
     <script src="js/registrarCliente.js"></script>
     <script src="js/registrarCarro.js"></script>
 </body>

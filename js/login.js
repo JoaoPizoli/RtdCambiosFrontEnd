@@ -1,3 +1,5 @@
+import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../src/utils/autofillFix.js"
+
 const form = document.getElementById('formLogin')
 
 form.addEventListener('submit',(event)=>{
@@ -46,3 +48,8 @@ form.addEventListener('submit',(event)=>{
         btnSubmit.disabled = false;
     });
 })
+
+document.addEventListener('DOMContentLoaded', async () => {
+    adicionarCSSDetecaoAutofill();
+    corrigirAutofill(); 
+});

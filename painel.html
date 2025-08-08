@@ -13,36 +13,7 @@
     <link rel="shortcut icon" href="./images/logo.png" type="image/png">
 </head>
 <body>
-    <header>
-        <img class="logo" src="images/logo.png" alt="Logo" onclick="redirectTo('painel.html')" style="cursor: pointer;">
-        <div class="header-nav">
-            <a href="painel.html" class="home-btn">
-                <i class="fas fa-home"></i>
-                <span>Início</span>
-            </a>
-            <a href="#" class="sair" id="btn-sair">Sair</a>
-        </div>
-        <script>
-            const logout = document.getElementById('btn-sair')
-            const token = localStorage.getItem('token')
-            logout.addEventListener('click', async ()=>{
-                const data = await fetch('http://172.16.5.57:3000/admin/logout', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${token}`
-                    }
-                })
-                const response = await data.json()
-                if(response){
-                    window.location.href = 'login.html'
-                } else {
-                    console.log('Erro ao fazer Logout')
-                }
-            })
-        </script>
-    </header>
-
+    <div data-header></div>
     <main class="painel-main">
         <div class="container">
             <div class="row justify-content-center">
@@ -104,6 +75,7 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script type="module" src="./src/components/header.js"></script>
     <script>
         function redirectTo(page) {
             window.location.href = page;
