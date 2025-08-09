@@ -39,7 +39,7 @@ form.addEventListener('submit',(event) =>{
     const telefone =  parseInt(dados.telefone)
     
 
-    fetch('http://172.16.5.57:3000/clientes/registrar',{
+    fetch('http://localhost:3000/clientes/registrar',{
         method: 'POST',
         headers:{
             'Content-Type': 'application/json',

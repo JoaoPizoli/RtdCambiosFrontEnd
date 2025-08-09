@@ -119,3 +119,7 @@ Guia passo a passo para organizar e evoluir o projeto de forma segura e incremen
 - Mantenha o projeto funcional a cada passo (evitar branch longa demais sem merge).
 
 Se quiser, posso iniciar automatizando as primeiras fases. É só pedir.
+
+
+
+ESTOU CONSGUINDO SELECIONAR O VEICULO SEM SELECIONAR O PROPRIETARIO DELE

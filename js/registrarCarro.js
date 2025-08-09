@@ -31,7 +31,7 @@ formCarros.addEventListener('submit', async (event) => {
     try {
         const token = localStorage.getItem('token')
 
-        const response = await fetch('http://172.16.5.57:3000/carros/cadastrar', {
+        const response = await fetch('http://localhost:3000/carros/cadastrar', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -65,7 +65,7 @@ formCarros.addEventListener('submit', async (event) => {
 async function carregarClientes(){
     try {
         const token = localStorage.getItem('token')
-        const response = await fetch('http://172.16.5.57:3000/clientes/listar',{
+        const response = await fetch('http://localhost:3000/clientes/listar',{
             method: 'GET',
             headers:{
                 'Content-Type': 'application/json',

@@ -16,7 +16,7 @@ export function renderHeader({ showHome = true, showNav = true, customLinks = []
     </header>
   `;
 
-  const headerContainer = document.getElementById('data-header')
+  const headerContainer = document.querySelector('[data-header]')
   if(headerContainer){
     headerContainer.innerHTML = headerHTML
   }

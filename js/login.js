@@ -17,7 +17,7 @@ form.addEventListener('submit',(event)=>{
         return;
     }
 
-    fetch('http://172.16.5.57:3000/admin/login',{
+    fetch('http://localhost:3000/admin/login',{
         method: 'POST',
         headers: {
             'Content-Type':'application/json'
@@ -43,10 +43,6 @@ form.addEventListener('submit',(event)=>{
         console.error('Erro:', err);
         alert('Erro ao fazer login: ' + err.message);
     })
-    .finally(() => {
-        btnSubmit.textContent = textoOriginal;
-        btnSubmit.disabled = false;
-    });
 })
 
 document.addEventListener('DOMContentLoaded', async () => {

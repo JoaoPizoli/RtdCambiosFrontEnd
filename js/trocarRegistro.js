@@ -5,7 +5,7 @@ const formEdit = document.getElementById('formEditar')
 async function pegarDadosClientes(){
     const token = localStorage.getItem('token')
     try {
-        const response = await fetch('http://172.16.5.57:3000/clientes/listar',{
+        const response = await fetch('http://localhost:3000/clientes/listar',{
         method: 'GET',
         headers:{
             'Content-Type': 'application/json',
@@ -35,7 +35,7 @@ async function pegarDadosClientes(){
 async function pegarDadosCarro(idCliente){
     const token = localStorage.getItem('token')
     try {
-        const response = await fetch('http://172.16.5.57:3000/carros/cliente',{
+        const response = await fetch('http://localhost:3000/carros/cliente',{
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,7 +63,7 @@ async function pegarDadosCarro(idCliente){
 async function pegarDadosTrocaOleo(data){
     const token = localStorage.getItem('token')
     try {
-        const response = await fetch('http://172.16.5.57:3000/oleo/listar',{
+        const response = await fetch('http://localhost:3000/oleo/listar',{
         method: 'POST',
         headers:{
             'Content-Type': 'application/json',
