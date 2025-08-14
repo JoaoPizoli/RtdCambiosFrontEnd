@@ -1,5 +1,7 @@
 // FUNÇÃO PARA CORRIGIR AUTOFILL
-import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../src/utils/autofillFix.js";
+import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../utils/autofillFix.js";
+import { cadastrarCarro } from "../services/carrosService.js";
+import { listarClientes } from "../services/clientesService.js";
 
 // Aplicar correções quando a página carrega
 document.addEventListener('DOMContentLoaded', () => {
@@ -29,22 +31,8 @@ formCarros.addEventListener('submit', async (event) => {
     btnSubmit.disabled = true;
     
     try {
-        const token = localStorage.getItem('token')
-
-        const response = await fetch('http://localhost:3000/carros/cadastrar', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                placa: dados.placa,
-                modelo: dados.modelo,
-                clienteId: dados.clienteId 
-            })
-        })
-
-        if (response.ok) {
+        const response = await cadastrarCarro(dados.placa, dados.modelo, dados.clienteId) 
+        if (response) {
             alert('Veículo cadastrado com sucesso!');
             formCarros.reset();
             // Reaplica correção após reset
@@ -64,15 +52,7 @@ formCarros.addEventListener('submit', async (event) => {
 
 async function carregarClientes(){
     try {
-        const token = localStorage.getItem('token')
-        const response = await fetch('http://localhost:3000/clientes/listar',{
-            method: 'GET',
-            headers:{
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        const clientes = await response.json()
+        const clientes = await listarClientes()
         return clientes 
     } catch (error) {
         console.error('Erro ao carregar clientes:', error);

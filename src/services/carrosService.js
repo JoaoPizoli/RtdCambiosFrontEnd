@@ -1,31 +1,31 @@
-import { apiCall } from "../core/apiClient";
+import { apiCall } from "../core/apiClient.js";
 
 
 export async function cadastrarCarro({ placa, modelo, clienteId}){
     return apiCall('/carros/cadastrar',{
         method: 'POST',
-        body: { placa, modelo, clienteId }
+        body: { placa: placa, modelo: modelo, clienteId: clienteId }
     })
 }
 
 export async function listarPorCliente({ clienteId }){
     return apiCall('/carros/cliente', {
         method: 'POST',
-        body: { clienteId }
+        body: { clienteId: clienteId }
     })
 }
 
 export async function deletarCarro({ carroId }){
     return apiCall('/carros/deletar',{
         method: 'DELETE',
-        body: { carroId }
+        body: { carroId: carroId }
     })
 }
 
  export async function editarCarro({ placa, modelo, id }){
     return apiCall('/carros/update',{
         method:'PATCH',
-        body: { placa, modelo, id }
+        body: { placa: placa, modelo: modelo, id: id }
     })
 }
 

@@ -35,3 +35,18 @@ export async function logout({ redirect = 'login.html'} = {}){
         if(redirect) window.location.href = redirect
     }
 }
+
+export async function login(email, password){
+    try {
+        const login = await apiCall('/admin/login', {method:'POST', body: {
+            email: email,
+            password: password
+        }})
+        if(login.token){
+            setToken(login.token)
+            window.location.href ='painel.html'
+        }
+    } catch (error) {
+        console.log(error.message)
+    }
+}

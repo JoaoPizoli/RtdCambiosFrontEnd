@@ -1,4 +1,4 @@
-import { isAuthenticated } from "./auth";
+import { isAuthenticated } from "./auth.js";
 
 export function ensureAuth(redirect = 'login.html'){
     if(!isAuthenticated()){

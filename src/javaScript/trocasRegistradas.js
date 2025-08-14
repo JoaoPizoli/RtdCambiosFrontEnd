@@ -1,96 +1,43 @@
-import { formatarDataBrasileira } from "../src/utils/formatters.js"
+import { formatarDataBrasileira } from "../utils/formatters.js"
+import { listarClientes } from "../services/clientesService.js"
+import { listarPorCliente } from "../services/carrosService.js"
+import { listarTrocasOleo } from "../services/oleoService.js"
+import { deletarTrocarOleo } from "../services/oleoService.js"
 
 const formEdit = document.getElementById('formEditar')
 
 async function pegarDadosClientes(){
-    const token = localStorage.getItem('token')
-    try {
-        const response = await fetch('http://localhost:3000/clientes/listar',{
-        method: 'GET',
-        headers:{
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-            }
-        })
-        if(response.ok){
-            const ativarForm = document.getElementById('selectVeiculoFiltro')
-            ativarForm.disabled = false
-        }else{
-            throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json()
-        const selectCliente = document.getElementById('selectClienteFiltro')
-        selectCliente.innerHTML ='<option value="">Selecionar Cliente</option>'
-        data.forEach(cliente =>{
-            const option = document.createElement('option')
-            option.value = cliente.id
-            option.textContent = cliente.nome 
-            selectCliente.appendChild(option)
-        })
-    } catch (error) {
-        console.log(`Erro ao listar Clientes: ${error.message}`)
-    }
+    const data = await listarClientes()
+    const ativarForm = document.getElementById('selectVeiculoFiltro')
+    ativarForm.disabled = false
+    const selectCliente = document.getElementById('selectClienteFiltro')
+    selectCliente.innerHTML ='<option value="0">Selecionar Cliente</option>'
+    data.forEach(cliente =>{
+        const option = document.createElement('option')
+        option.value = cliente.id
+        option.textContent = cliente.nome 
+        selectCliente.appendChild(option)
+    })
 }
 
 async function pegarDadosCarro(idCliente){
-    const token = localStorage.getItem('token')
-    try {
-        const response = await fetch('http://localhost:3000/carros/cliente',{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                clienteId: idCliente
-            })
-        })
-        if(!response.ok){
-            throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-
-        const data = await response.json()
-        const carregarDados = carregarDadosCarroTela(data)
-        if(!carregarDados){
-            console.log('Erro ao carregar a lista de carros do cliente!')
-        }
-        return data
-    } catch (error) {
-        console.log(`Erro ao listar Clientes: ${error.message}`)
+    const data = await listarPorCliente(idCliente) 
+    const carregarDados = carregarDadosCarroTela(data)
+    if(!carregarDados){
+        console.log('Erro ao carregar a lista de carros do cliente!')
     }
+    return data
 }
 
 async function pegarDadosTrocaOleo(data){
-    const token = localStorage.getItem('token')
-    try {
-        const response = await fetch('http://localhost:3000/oleo/listar',{
-        method: 'POST',
-        headers:{
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`
-         },
-        body: JSON.stringify({
-            carroId: data
-         })
-        })
-        if(!response){
-            throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
 
-        const dados = await response.json()
-        const loadData = await carregarDadosTelaTrocaOleo(dados)
-        if(!loadData){
-            console.error('❌ Erro ao carregar os dados na tela - verifique se a função carregarDadosTelaTrocaOleo está funcionando')
-        }
-        return true 
-
-    } catch (error) {
-        console.log(`Erro ao carregar os dados de troca de óleo: ${error.message}`)
-        return false 
+    const dados = await listarTrocasOleo(data)
+    const loadData = await carregarDadosTelaTrocaOleo(dados)
+    if(!loadData){
+        console.error('Erro ao carregar os dados na tela - verifique se a função carregarDadosTelaTrocaOleo está funcionando')
     }
+    return true 
 }
-
-
 
 async function carregarDadosCarroTela(dadosCarro){
     const dropDown = document.getElementById('selectVeiculoFiltro')
@@ -103,6 +50,21 @@ async function carregarDadosCarroTela(dadosCarro){
     }
 }
 
+function excluirTroca(idTroca){
+    console.log('ID recebido:', idTroca, 'Tipo:', typeof idTroca, 'É objeto?', typeof idTroca === 'object')
+    window.trocaParaExcluir = idTroca
+    const modal = new bootstrap.Modal(document.getElementById('modalExcluir'))
+    modal.show()
+}
+
+function editarTroca(idTroca){
+    alert(`Editar troca ID: ${idTroca}`)
+}
+
+// Tornar as funções globalmente acessíveis
+window.excluirTroca = excluirTroca
+window.editarTroca = editarTroca
+
 
 function contador(tamanhoData){
     const contador = document.getElementById('totalRegistros')
@@ -112,7 +74,6 @@ function contador(tamanhoData){
 }
 
 async function carregarDadosTelaTrocaOleo(dados){
-    
     const data = dados
     contador(dados)
     const lista = document.getElementById('listaTrocas')
@@ -123,10 +84,10 @@ async function carregarDadosTelaTrocaOleo(dados){
             <div class="troca-card" data-id="${data[i].id}">
                 <div class="troca-card-header">
                     <div class="acoes">
-                        <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca(${data[i].id})">
+                        <button class="btn btn-sm btn-outline-warning me-2" onclick="editarTroca('${data[i].id}')">
                             <i class="fas fa-edit"></i>
                         </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca(${data[i].id})">
+                        <button class="btn btn-sm btn-outline-danger" onclick="excluirTroca('${data[i].id}')">
                             <i class="fas fa-trash"></i>
                         </button>
                     </div>
@@ -195,20 +156,21 @@ async function carregarDadosTelaTrocaOleo(dados){
     return true 
 }
 
-
-
 //Event Listeners
-
 document.getElementById('selectClienteFiltro').addEventListener('change', async (event) =>{
     const clientId = event.target.value
-    if(clientId){
+    if(clientId === "0"){
+        const dropDown = document.getElementById('selectVeiculoFiltro')
+        dropDown.innerHTML = '<option value="">Selecionar Veículo do Cliente</option>'
+        document.getElementById('listaTrocas').innerHTML = '';
+        document.getElementById('totalRegistros').innerHTML = '0'
+    }
+    else if(clientId){ 
         const dadosCarro = await pegarDadosCarro(clientId)
         if(!dadosCarro){
             console.log('Erro ao executar função que pega os dados do carro pelo ClientId')
         }
-    } else {
-        document.getElementById('listaTrocas').innerHTML = '';
-    }
+    } 
 })
 
 document.getElementById('selectVeiculoFiltro').addEventListener('change', async (event)=>{
@@ -218,18 +180,40 @@ document.getElementById('selectVeiculoFiltro').addEventListener('change', async 
         if(!trocas){
             console.error('❌ Erro ao exibir dados da troca de óleo - ID do carro:', idCarro)
         }
-    
     }
 })
 
+// Event listener para confirmar exclusão no modal
+document.getElementById('confirmarExclusao').addEventListener('click', async () => {
+    try {
+        const idTroca = window.trocaParaExcluir
 
+        if (idTroca) {
+            await deletarTrocarOleo(idTroca)
+            
+            // Fechar o modal
+            const modal = bootstrap.Modal.getInstance(document.getElementById('modalExcluir'))
+            modal.hide()
+            
+            // Recarregar a lista
+            const carroSelecionado = document.getElementById('selectVeiculoFiltro').value
+            if (carroSelecionado) {
+                await pegarDadosTrocaOleo(carroSelecionado)
+            }
+            
+            // Limpar a variável temporária
+            window.trocaParaExcluir = null
+            
+            alert('Troca excluída com sucesso!')
+        } else {
+            alert('Erro: ID da troca não encontrado')
+        }
+    } catch (error) {
+        console.error('Erro ao excluir troca:', error)
+        alert('Erro ao excluir troca: ' + error.message)
+    }
+})
 
 window.addEventListener('DOMContentLoaded', async ()=>{
-    const token = localStorage.getItem('token');
-    if (!token) {
-        alert('Você precisa fazer login para acessar esta página.');
-        window.location.href = 'login.html';
-        return;
-    }
     await pegarDadosClientes()
 })

@@ -25,13 +25,13 @@ Guia passo a passo para organizar e evoluir o projeto de forma segura e incremen
 - [X] Criar `src/utils/formatters.js` (formatarDataBrasileira, etc.)
 - [X] Criar `src/utils/autofillFix.js` (unificar lógica de correção de autofill)
 - [ ] Criar `src/utils/dom.js` (qs, qsa, createEl, setLoading)
-- [ ] Remover duplicações de código de autofill
+- [X] Remover duplicações de código de autofill
 
 ## Fase 4 – Componentização Simples
-- [ ] Criar `src/components/header.js` (gera o <header> dinâmico conforme página)
+- [X] Criar `src/components/header.js` (gera o <header> dinâmico conforme página)
 - [ ] Criar `src/components/nav.js` (links condicionalmente ativos)
-- [ ] Substituir headers inline em todas as páginas por container + script que injeta
-- [ ] Centralizar lógica de logout em `auth.logout()` dentro do header
+- [X] Substituir headers inline em todas as páginas por container + script que injeta
+- [X] Centralizar lógica de logout em `auth.logout()` dentro do header
 
 ## Fase 5 – Scripts por Página
 - [ ] Criar pasta `src/pages/login/` com `login.js` (migrar lógica atual)

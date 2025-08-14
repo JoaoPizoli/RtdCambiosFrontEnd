@@ -1,4 +1,8 @@
-import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../src/utils/autofillFix.js";
+import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../utils/autofillFix.js";
+import { listarClientes } from "../services/clientesService.js";
+import { listarPorCliente } from "../services/carrosService.js";
+import { registrarTrocaOleo } from "../services/oleoService.js";
+import { formatarDataBrasileira } from "../utils/formatters.js";
   
   // Funções para navegação entre formulários
     function mostrarForm(tipo) {
@@ -122,16 +126,8 @@ import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../src/utils/auto
 // Funções para Comunicação com o Banco de Dados
 
 async function carregarDadosClientes(){
-    const token = localStorage.getItem('token')
     try {
-        const response = await fetch('http://localhost:3000/clientes/listar',{
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        const data = await response.json()
+        const data = await listarClientes()
         const selectCliente = document.getElementById('selectCliente')
         selectCliente.innerHTML = '<option value="">Selecione o Cliente</option>'
         data.forEach(cliente =>{
@@ -148,24 +144,9 @@ async function carregarDadosClientes(){
 }
 
 async function carregarDadosCarros(dadosCliente){
-    const token = localStorage.getItem('token')
     const { id } = dadosCliente 
     try {
-        const response = await fetch('http://localhost:3000/carros/cliente',{
-            method: 'POST',
-            headers: {
-                'Content-Type':'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                clienteId: id
-            })
-        })
-
-        if(!response.ok){
-            throw new Error(`Erro ${response.status}: ${response.statusText}`);
-        }
-        const data = await response.json()
+        const data = await listarPorCliente(id)
         const selectCarro = document.getElementById('selectVeiculo')
         selectCarro.innerHTML = '<option value="">Selecione o Veículo</option>'
         data.forEach(carro =>{
@@ -197,35 +178,20 @@ formOleo.addEventListener('submit',async (event)=>{
 
     console.log('os dados: ',dados)
 
-    // Converter datas para formato ISO-8601
-    const oleoDataTroca = new Date(dados.oleoDataTroca).toISOString();
-    const oleoDataProximaTroca = new Date(dados.oleoDataProximaTroca).toISOString();
+    const oleoDataTroca = formatarDataBrasileira(dados.oleoDataTroca)
+    const oleoDataProximaTroca = formatarDataBrasileira(dados.oleoDataProximaTroca)
     const btnSubmit = formOleo.querySelector('button[type="submit"]')
     btnSubmit.textContent = 'Enviando ...'
     btnSubmit.disabled = true
+    const kmTroca = parseInt(dados.kmTroca)
+    const KmProximaTroca = parseInt(dados.KmProximaTroca)
     
-    const token = localStorage.getItem('token')
     try {
-        const response = await fetch('http://localhost:3000/oleo/registrar',{
-            method:'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify({
-                oleoDataTroca: oleoDataTroca,
-                oleoDataProximaTroca: oleoDataProximaTroca,
-                kmTroca: parseInt(dados.kmTroca),
-                KmProximaTroca: parseInt(dados.KmProximaTroca),
-                tipoOleo: dados.tipoOleo,
-                carroId: dados.carroId,
-            })
-        })
-        if(response.ok){
+        const response = await registrarTrocaOleo(oleoDataTroca, oleoDataProximaTroca, kmTroca, KmProximaTroca, dados.tipoOleo, dados.carroId   )
+        if(response){
             btnSubmit.textContent = 'Registrar Troca de Óleo'
             btnSubmit.disabled = false
         } else{
-            const error = await response.json();
             alert('Erro ao cadastrar veículo: ' + (error.message || 'Erro desconhecido'));
             btnSubmit.textContent = 'Registrar Troca de Óleo'
             btnSubmit.disabled = false
