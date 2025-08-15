@@ -3,6 +3,7 @@ import { listarClientes } from "../services/clientesService.js";
 import { listarPorCliente } from "../services/carrosService.js";
 import { registrarTrocaOleo } from "../services/oleoService.js";
 import { formatarDataBrasileira } from "../utils/formatters.js";
+import { ApiError } from "../core/erroHandler.js";
   
   // Funções para navegação entre formulários
     function mostrarForm(tipo) {
@@ -138,7 +139,11 @@ async function carregarDadosClientes(){
         })
         return data
     } catch (error) {
-        console.log(`Erro ao listar os clientes ${error.message}`)
+        if (error instanceof ApiError) {
+            console.log(`Erro ao listar os clientes: ${error.userMessage}`)
+        } else {
+            console.log(`Erro ao listar os clientes: ${error.message}`)
+        }
     }
     
 }
@@ -146,7 +151,7 @@ async function carregarDadosClientes(){
 async function carregarDadosCarros(dadosCliente){
     const { id } = dadosCliente 
     try {
-        const data = await listarPorCliente(id)
+        const data = await listarPorCliente({clienteId: id})
         const selectCarro = document.getElementById('selectVeiculo')
         selectCarro.innerHTML = '<option value="">Selecione o Veículo</option>'
         data.forEach(carro =>{
@@ -158,7 +163,11 @@ async function carregarDadosCarros(dadosCliente){
             selectCarro.appendChild(option)
         })
     } catch (error) {
-        console.log(`Erro ao listar os veículos: ${error.message}`)
+        if (error instanceof ApiError) {
+            console.log(`Erro ao listar os veículos: ${error.userMessage}`)
+        } else {
+            console.log(`Erro ao listar os veículos: ${error.message}`)
+        }
     }
 }
 
@@ -178,8 +187,8 @@ formOleo.addEventListener('submit',async (event)=>{
 
     console.log('os dados: ',dados)
 
-    const oleoDataTroca = formatarDataBrasileira(dados.oleoDataTroca)
-    const oleoDataProximaTroca = formatarDataBrasileira(dados.oleoDataProximaTroca)
+    const oleoDataTroca = new Date(dados.oleoDataTroca).toISOString();
+    const oleoDataProximaTroca = new Date(dados.oleoDataProximaTroca).toISOString();
     const btnSubmit = formOleo.querySelector('button[type="submit"]')
     btnSubmit.textContent = 'Enviando ...'
     btnSubmit.disabled = true
@@ -187,22 +196,45 @@ formOleo.addEventListener('submit',async (event)=>{
     const KmProximaTroca = parseInt(dados.KmProximaTroca)
     
     try {
-        const response = await registrarTrocaOleo(oleoDataTroca, oleoDataProximaTroca, kmTroca, KmProximaTroca, dados.tipoOleo, dados.carroId   )
+        const response = await registrarTrocaOleo({
+            oleoDataTroca: oleoDataTroca, 
+            oleoDataProximaTroca: oleoDataProximaTroca, 
+            kmTroca: kmTroca, 
+            KmProximaTroca: KmProximaTroca, 
+            tipoOleo: dados.tipoOleo, 
+            carroId: dados.carroId
+        })
         if(response){
-            btnSubmit.textContent = 'Registrar Troca de Óleo'
-            btnSubmit.disabled = false
-        } else{
-            alert('Erro ao cadastrar veículo: ' + (error.message || 'Erro desconhecido'));
-            btnSubmit.textContent = 'Registrar Troca de Óleo'
-            btnSubmit.disabled = false
+            alert('Troca de óleo registrada com sucesso!');
+            formOleo.reset();
+            mostrarForm('cliente');
         }
-
     } catch (error) {
+        if (error instanceof ApiError) {
+            alert(error.userMessage);
+        } else {
+            alert('Erro inesperado ao registrar troca de óleo: ' + error.message);
+        }
         console.log(`Erro ao registrar troca de óleo: ${error.message}`)
+    } finally {
+        btnSubmit.textContent = 'Registrar Troca de Óleo'
+        btnSubmit.disabled = false
     }
 
 })
 
+
+document.getElementById('btnCliente').addEventListener('click', ()=>{
+    continuarParaServico()
+})
+
+document.getElementById('btnRegistrarServico').addEventListener('click',()=>{
+    mostrarFormServico()
+})
+
+document.getElementById('selecionarCliente').addEventListener('click', ()=>{
+    mostrarForm('cliente')
+})
 
 
 document.addEventListener('DOMContentLoaded', async () => {

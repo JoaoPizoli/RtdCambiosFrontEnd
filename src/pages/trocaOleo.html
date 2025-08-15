@@ -21,8 +21,8 @@
                 
                 <!-- Botões para alternar entre formulários -->
                 <div class="text-center mb-4">
-                    <button class="btn btn-outline-light me-2" onclick="mostrarForm('cliente')">Selecionar Cliente</button>
-                    <button class="btn btn-outline-light" id="btnRegistrarServico" onclick="mostrarFormServico()" disabled>Registrar Serviço</button>
+                    <button class="btn btn-outline-light me-2" id="selecionarCliente">Selecionar Cliente</button>
+                    <button class="btn btn-outline-light" id="btnRegistrarServico"  disabled>Registrar Serviço</button>
                 </div>
 
                 <!-- Formulário Seleção de Cliente -->
@@ -35,7 +35,7 @@
                         <select name="veiculoId" id="selectVeiculo" required disabled>
                             <option value="">Selecione o Veículo</option>
                         </select>
-                        <button type="button" class="btn-registro" onclick="continuarParaServico()">Continuar</button>
+                        <button type="button" class="btn-registro" id="btnCliente">Continuar</button>
                     </form>
                 </div>
 

@@ -1,4 +1,5 @@
 import { API_BASE } from './config.js';
+import { ApiError, createErrorFromStatus } from './erroHandler.js';
 
 export async function apiCall(path, { method = 'GET', body, auth = true } = {}) {
     if (!path) throw new Error('path obrigatório');
@@ -10,17 +11,24 @@ export async function apiCall(path, { method = 'GET', body, auth = true } = {}) 
 
     const options = { method, headers };
     if (body && method !== 'GET' && method !== 'HEAD') {
-        options.body = JSON.stringify(body);
+        options.body =  JSON.stringify(body);
     }
 
-    const res = await fetch(url, options);
-    let data = null;
-    if (res.status !== 204) {
-        try { data = await res.json(); } catch { data = null; }
-    }
+    try {
+        const res = await fetch(url, options);
+        let data = null;
+        if (res.status !== 204) {
+            try { data = await res.json(); } catch { data = null; }
+        }
 
-    if (!res.ok) {
-        throw new Error(data?.message || `Erro HTTP ${res.status}`);
+        if (!res.ok) {
+            throw createErrorFromStatus(res.status, data?.message);
+        }
+        return data;
+    } catch (error) {
+        if (error instanceof ApiError) {
+            throw error;
+        }
+        throw new ApiError('network', 'Erro ao conectar com o servidor');
     }
-    return data;
 }

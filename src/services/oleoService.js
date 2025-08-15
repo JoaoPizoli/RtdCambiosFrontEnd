@@ -17,7 +17,7 @@ export async function deletarTrocarOleo(idTrocaOleo){
 export async function listarTrocasOleo(idCarro){
     return apiCall('/oleo/listar', {
         method: 'POST',
-        body: { idCarro: idCarro }
+        body: { carroId: idCarro }
     })
 }
 

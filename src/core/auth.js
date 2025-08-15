@@ -1,4 +1,5 @@
 import { apiCall } from './apiClient.js'
+import { handleError } from './erroHandler.js'
 
 const TOKEN_KEY = 'token'
 
@@ -47,6 +48,6 @@ export async function login(email, password){
             window.location.href ='painel.html'
         }
     } catch (error) {
-        console.log(error.message)
+        console.log(handleError(error, 'Erro ao fazer login'));
     }
 }

@@ -1,5 +1,6 @@
 import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../utils/autofillFix.js";
 import { registrarCliente } from "../services/clientesService.js";
+import { handleError, validators } from "../core/erroHandler.js";
 
 const form = document.getElementById('formClientes')
 
@@ -17,7 +18,7 @@ document.addEventListener('DOMContentLoaded', async function() {
     corrigirAutofill();
 });
 
-form.addEventListener('submit',(event) =>{
+form.addEventListener('submit', async (event) =>{
     event.preventDefault()
 
     const formData = new FormData(form)
@@ -32,6 +33,15 @@ form.addEventListener('submit',(event) =>{
         return;
     }
 
+    try {
+        validators.required(dados.nome, 'Nome');
+        validators.email(dados.email);
+        validators.phone(dados.telefone);
+    } catch (error) {
+        alert(handleError(error));
+        return;
+    }
+
     const btnSubmit = form.querySelector('button[type="submit"]');
     const textoOriginal = btnSubmit.textContent;
     btnSubmit.textContent = 'Enviando...';
@@ -39,9 +49,9 @@ form.addEventListener('submit',(event) =>{
     const telefone =  parseInt(dados.telefone)
 
     try {
-        const registrar = registrarCliente(dados.nome,dados.email, telefone)
+        const registrar = await registrarCliente({nome: dados.nome, email: dados.email, telefone: telefone})
         if(registrar){
-            console.log('Sucesso:', resposta);
+            console.log('Sucesso:', registrar);
             alert('Cliente registrado com sucesso!');
             form.reset(); 
             // Reaplica correção após reset
@@ -50,10 +60,12 @@ form.addEventListener('submit',(event) =>{
             if (typeof window.recarregarListaClientes === 'function') {
                 window.recarregarListaClientes();
             } 
-            btnSubmit.textContent = textoOriginal;
-            btnSubmit.disabled = false;
         }
     } catch (error) {
+        alert(handleError(error, 'Erro ao cadastrar cliente'));
         console.error('Erro:', error.message);
+    } finally {
+        btnSubmit.textContent = textoOriginal;
+        btnSubmit.disabled = false;
     }
 })

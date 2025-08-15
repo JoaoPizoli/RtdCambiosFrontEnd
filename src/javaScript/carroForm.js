@@ -2,6 +2,7 @@
 import { corrigirAutofill, adicionarCSSDetecaoAutofill } from "../utils/autofillFix.js";
 import { cadastrarCarro } from "../services/carrosService.js";
 import { listarClientes } from "../services/clientesService.js";
+import { handleError } from "../core/erroHandler.js";
 
 // Aplicar correções quando a página carrega
 document.addEventListener('DOMContentLoaded', () => {
@@ -31,19 +32,16 @@ formCarros.addEventListener('submit', async (event) => {
     btnSubmit.disabled = true;
     
     try {
-        const response = await cadastrarCarro(dados.placa, dados.modelo, dados.clienteId) 
+        const response = await cadastrarCarro({placa: dados.placa, modelo: dados.modelo, clienteId: dados.clienteId}) 
         if (response) {
             alert('Veículo cadastrado com sucesso!');
             formCarros.reset();
             // Reaplica correção após reset
             setTimeout(corrigirAutofill, 100);
-        } else {
-            const error = await response.json();
-            alert('Erro ao cadastrar veículo: ' + (error.message || 'Erro desconhecido'));
         }
     } catch (error) {
+        alert(handleError(error, 'Erro ao cadastrar veículo'));
         console.error('Erro:', error);
-        alert('Erro ao cadastrar veículo: ' + error.message);
     } finally {
         btnSubmit.textContent = 'Registrar';
         btnSubmit.disabled = false;
@@ -55,7 +53,7 @@ async function carregarClientes(){
         const clientes = await listarClientes()
         return clientes 
     } catch (error) {
-        console.error('Erro ao carregar clientes:', error);
+        console.error('Erro ao carregar clientes:', handleError(error));
         return []
     }
 }
