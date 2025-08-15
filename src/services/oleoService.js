@@ -21,9 +21,9 @@ export async function listarTrocasOleo(idCarro){
     })
 }
 
-export async function editarTrocaOleo({ oleoDataTroca, oleoDataProximaTroca, kmTroca, KmProximaTroca, tipoOleo, idCarro }){
+export async function editarTrocaOleo({ idTroca, oleoDataTroca, oleoDataProximaTroca, kmTroca, KmProximaTroca, tipoOleo, idCarro}){
     return apiCall('/oleo/update',{
         method: 'PATCH',
-        body:{ oleoDataTroca: oleoDataTroca, oleoDataProximaTroca: oleoDataProximaTroca, kmTroca: kmTroca, KmProximaTroca: KmProximaTroca, tipoOleo: tipoOleo, idCarro: idCarro }
+    body:{ id: idTroca, oleoDataTroca: oleoDataTroca, oleoDataProximaTroca: oleoDataProximaTroca, kmTroca: kmTroca, KmProximaTroca: KmProximaTroca, tipoOleo: tipoOleo, carroId: idCarro }
     })
 }

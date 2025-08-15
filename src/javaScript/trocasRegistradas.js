@@ -1,8 +1,9 @@
-import { formatarDataBrasileira } from "../utils/formatters.js"
+import { formatarDataBrasileira, formatarParaISO8601  } from "../utils/formatters.js"
 import { listarClientes } from "../services/clientesService.js"
 import { listarPorCliente } from "../services/carrosService.js"
 import { listarTrocasOleo } from "../services/oleoService.js"
 import { deletarTrocarOleo } from "../services/oleoService.js"
+import { editarTrocaOleo } from "../services/oleoService.js"
 import { ApiError } from "../core/erroHandler.js"
 
 
@@ -82,7 +83,40 @@ function excluirTroca(idTroca){
 }
 
 function editarTroca(idTroca){
-    alert(`Editar troca ID: ${idTroca}`)
+    try {
+        // Recupera a troca do cache e preenche o modal
+        const troca = window.__trocasCache?.get?.(idTroca)
+        if (!troca) {
+            console.warn('Troca não encontrada no cache, ID:', idTroca)
+        }
+
+        // Info de cliente e veículo a partir dos selects
+        const selCliente = document.getElementById('selectClienteFiltro')
+        const selVeiculo = document.getElementById('selectVeiculoFiltro')
+        const clienteNome = selCliente?.selectedOptions?.[0]?.textContent || ''
+        const veiculoInfo = selVeiculo?.selectedOptions?.[0]?.textContent || ''
+        document.getElementById('editClienteNome').textContent = clienteNome
+        document.getElementById('editVeiculoInfo').textContent = veiculoInfo
+
+
+        document.getElementById('editDataTroca').value = new Date(troca?.oleoDataTroca).toISOString();
+        document.getElementById('editProximaTroca').value = new Date(troca?.oleoDataProximaTroca).toISOString();
+        document.getElementById('editKmAtual').value = troca?.kmTroca ?? ''
+        document.getElementById('editKmProxima').value = troca?.KmProximaTroca ?? ''
+        document.getElementById('editTipoOleo').value = troca?.tipoOleo ?? ''
+
+        // Guarda contexto para salvar
+        window.trocaParaEditar = {
+            idTroca,
+            idCarro: selVeiculo?.value || null,
+        }
+
+        const modal = new bootstrap.Modal(document.getElementById('modalEditar'))
+        modal.show()
+    } catch (err) {
+        console.error('Erro ao abrir modal de edição:', err)
+        alert('Erro ao abrir a edição. Tente novamente.')
+    }
 }
 
 window.excluirTroca = excluirTroca
@@ -98,6 +132,12 @@ function contador(tamanhoData){
 
 async function carregarDadosTelaTrocaOleo(dados){
     const data = dados
+    // Atualiza cache em memória para acesso rápido na edição
+    if (!window.__trocasCache) window.__trocasCache = new Map()
+    window.__trocasCache.clear()
+    for (const t of data) {
+        window.__trocasCache.set(String(t.id), t)
+    }
     contador(dados)
     const lista = document.getElementById('listaTrocas')
     lista.innerHTML = ''
@@ -243,6 +283,55 @@ document.getElementById('confirmarExclusao').addEventListener('click', async () 
             alert('Erro inesperado ao excluir troca: ' + error.message);
         }
         console.error('Erro ao excluir troca:', error)
+    }
+})
+
+// Event listener para salvar edição no modal
+document.getElementById('salvarEdicao').addEventListener('click', async () => {
+    const btn = document.getElementById('salvarEdicao')
+    try {
+        const ctx = window.trocaParaEditar || {}
+        const idCarro = ctx.idCarro || document.getElementById('selectVeiculoFiltro')?.value
+        if (!idCarro) {
+            alert('Selecione um veículo antes de editar.')
+            return
+        }
+        const idTroca = ctx.idTroca
+        const oleoDataFormat = document.getElementById('editDataTroca').value
+        const oleoDataPformat = document.getElementById('editProximaTroca').value
+        const oleoDataTroca = formatarParaISO8601(oleoDataFormat)
+        const oleoDataProximaTroca = formatarParaISO8601(oleoDataPformat)
+        const kmTroca = Number(document.getElementById('editKmAtual').value)
+        const KmProximaTroca = Number(document.getElementById('editKmProxima').value)
+        const tipoOleo = document.getElementById('editTipoOleo').value?.trim()
+
+        if (!oleoDataTroca || !oleoDataProximaTroca || !kmTroca || !KmProximaTroca || !tipoOleo) {
+            alert('Preencha todos os campos corretamente.')
+            return
+        }
+
+        btn.disabled = true
+        await editarTrocaOleo({ idTroca, oleoDataTroca, oleoDataProximaTroca, kmTroca, KmProximaTroca, tipoOleo})
+
+        // Fechar modal
+        const modal = bootstrap.Modal.getInstance(document.getElementById('modalEditar'))
+        modal?.hide()
+
+        // Atualizar lista
+        await pegarDadosTrocaOleo(idCarro)
+
+        // Limpar contexto
+        window.trocaParaEditar = null
+        alert('Troca atualizada com sucesso!')
+    } catch (error) {
+        if (error instanceof ApiError) {
+            alert(error.userMessage)
+        } else {
+            alert('Erro ao salvar edição: ' + error.message)
+        }
+        console.error('Erro ao editar troca:', error)
+    } finally {
+        btn.disabled = false
     }
 })
 
