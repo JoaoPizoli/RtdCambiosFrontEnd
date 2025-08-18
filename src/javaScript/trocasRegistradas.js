@@ -1,3 +1,4 @@
+import sweetalert2 from 'https://cdn.jsdelivr.net/npm/sweetalert2@11.22.4/+esm'
 import { formatarDataBrasileira, formatarParaISO8601  } from "../utils/formatters.js"
 import { listarClientes } from "../services/clientesService.js"
 import { listarPorCliente } from "../services/carrosService.js"
@@ -142,6 +143,9 @@ async function carregarDadosTelaTrocaOleo(dados){
     const lista = document.getElementById('listaTrocas')
     lista.innerHTML = ''
     for(let i = 0; i < data.length; i++){
+        // Verificar status da troca
+        const statusInfo = verificarStatusTroca(data[i].oleoDataProximaTroca)
+        
         const card = document.createElement('div')
                 card.innerHTML = `
             <div class="troca-card" data-id="${data[i].id}">
@@ -206,8 +210,8 @@ async function carregarDadosTelaTrocaOleo(dados){
                         </div>
                     </div>
                     <div class="status-container mt-3">
-                        <span class="badge status-badge status-em-dia">
-                            <i class="fas fa-check-circle me-1"></i>Em dia
+                        <span class="badge status-badge ${statusInfo.classe}">
+                            <i class="${statusInfo.icone} me-1"></i>${statusInfo.texto}
                         </span>
                     </div>
                 </div>
@@ -217,6 +221,60 @@ async function carregarDadosTelaTrocaOleo(dados){
 
     }
     return true 
+}
+
+
+// Função para verificar o status da troca baseado na data
+function verificarStatusTroca(dataProximaTroca) {
+    const dataAtual = new Date()
+    const dataProxima = new Date(dataProximaTroca)
+    
+    // Remove a parte de horas para comparar apenas as datas
+    dataAtual.setHours(0, 0, 0, 0)
+    dataProxima.setHours(0, 0, 0, 0)
+    
+    const diferencaDias = Math.ceil((dataProxima - dataAtual) / (1000 * 60 * 60 * 24))
+    
+    if (diferencaDias < 0) {
+        return {
+            status: 'atrasado',
+            classe: 'status-atrasado',
+            icone: 'fas fa-exclamation-triangle',
+            texto: 'Atrasado'
+        }
+    } else if (diferencaDias <= 7) {
+        return {
+            status: 'proximo',
+            classe: 'status-proximo', 
+            icone: 'fas fa-clock',
+            texto: 'Próximo do vencimento'
+        }
+    } else {
+        return {
+            status: 'em-dia',
+            classe: 'status-em-dia',
+            icone: 'fas fa-check-circle',
+            texto: 'Em dia'
+        }
+    }
+}
+
+// Validação simples dos campos
+function validarCampos() {
+    const erros = []
+    const data = document.getElementById('editDataTroca').value?.trim()
+    const proxima = document.getElementById('editProximaTroca').value?.trim()
+    const km = document.getElementById('editKmAtual').value?.trim()
+    const kmProx = document.getElementById('editKmProxima').value?.trim()
+    const oleo = document.getElementById('editTipoOleo').value?.trim()
+    
+    if (!data) erros.push("Data da Troca é obrigatória")
+    if (!proxima) erros.push("Data da Próxima Troca é obrigatória")
+    if (!km || Number(km) <= 0) erros.push("KM Atual inválido")
+    if (!kmProx || Number(kmProx) <= 0) erros.push("Próximo KM inválido")
+    if (!oleo || oleo.length < 2) erros.push("Tipo de Óleo inválido")
+    
+    return erros
 }
 
 //Event Listeners
@@ -271,10 +329,19 @@ document.getElementById('confirmarExclusao').addEventListener('click', async () 
             
             // Limpar a variável temporária
             window.trocaParaExcluir = null
-            
-            alert('Troca excluída com sucesso!')
+    
+            sweetalert2.fire({
+                title: "Feito!",
+                text: "Troca excluída com sucesso!",
+                icon: "success"
+                });
         } else {
             alert('Erro: ID da troca não encontrado')
+            sweetalert2.fire({
+                icon: "error",
+                title: "Oops...",
+                text: "Erro ao excluir Troca!",
+            });
         }
     } catch (error) {
         if (error instanceof ApiError) {
@@ -299,16 +366,24 @@ document.getElementById('salvarEdicao').addEventListener('click', async () => {
         const idTroca = ctx.idTroca
         const oleoDataFormat = document.getElementById('editDataTroca').value
         const oleoDataPformat = document.getElementById('editProximaTroca').value
+        
+        // Validar campos
+        const erros = validarCampos()
+        if (erros.length > 0) {
+            sweetalert2.fire({
+                icon: 'error',
+                title: 'Dados Inválidos',
+                html: erros.map(e => `• ${e}`).join('<br>'),
+                confirmButtonText: 'OK'
+            })
+            return
+        }
+        
         const oleoDataTroca = formatarParaISO8601(oleoDataFormat)
         const oleoDataProximaTroca = formatarParaISO8601(oleoDataPformat)
         const kmTroca = Number(document.getElementById('editKmAtual').value)
         const KmProximaTroca = Number(document.getElementById('editKmProxima').value)
         const tipoOleo = document.getElementById('editTipoOleo').value?.trim()
-
-        if (!oleoDataTroca || !oleoDataProximaTroca || !kmTroca || !KmProximaTroca || !tipoOleo) {
-            alert('Preencha todos os campos corretamente.')
-            return
-        }
 
         btn.disabled = true
         await editarTrocaOleo({ idTroca, oleoDataTroca, oleoDataProximaTroca, kmTroca, KmProximaTroca, tipoOleo})
@@ -322,7 +397,12 @@ document.getElementById('salvarEdicao').addEventListener('click', async () => {
 
         // Limpar contexto
         window.trocaParaEditar = null
-        alert('Troca atualizada com sucesso!')
+        
+        sweetalert2.fire({
+            title: "Sucesso!",
+            text: "Troca atualizada com sucesso!",
+            icon: "success"
+        })
     } catch (error) {
         if (error instanceof ApiError) {
             alert(error.userMessage)
